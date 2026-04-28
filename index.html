@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TehObfus Hub — Script & Code Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060710;--s1:#0c0e1e;--s2:#111428;--s3:#181b35;--s4:#1f2340;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.12);
+  --accent:#7c6ef2;--acc2:#00e5b0;--acc3:#ff4d8f;--acc4:#ffa733;--acc5:#00cfff;
+  --text:#dde1f5;--muted:#555a7a;--muted2:#8890b5;
+  --mono:'JetBrains Mono',monospace;--sans:'Syne',sans-serif;
+  --rad:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;overflow-x:hidden;cursor:default;}
+
+/* ── BG FX ── */
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;}
+.orb{position:absolute;border-radius:50%;filter:blur(110px);opacity:.1;animation:od 16s ease-in-out infinite;}
+.orb:nth-child(1){width:800px;height:800px;background:var(--accent);top:-300px;left:-300px;}
+.orb:nth-child(2){width:600px;height:600px;background:var(--acc2);bottom:-200px;right:-200px;animation-delay:-6s;}
+.orb:nth-child(3){width:400px;height:400px;background:var(--acc3);top:40%;left:50%;animation-delay:-11s;}
+@keyframes od{0%,100%{transform:translate(0,0)scale(1);}50%{transform:translate(20px,-20px)scale(1.04);}}
+.dots{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:radial-gradient(rgba(255,255,255,.05) 1px,transparent 1px);
+  background-size:32px 32px;}
+
+/* ── LAYOUT ── */
+.app{position:relative;z-index:1;display:flex;min-height:100vh;}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:230px;flex-shrink:0;background:var(--s1);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;
+  transition:transform .3s;
+}
+.sb-logo{
+  padding:22px 20px 18px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;
+}
+.sb-logo-icon{
+  width:36px;height:36px;border-radius:10px;
+  background:linear-gradient(135deg,var(--accent),var(--acc3));
+  display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;
+}
+.sb-logo-name{font-weight:900;font-size:16px;letter-spacing:-.5px;}
+.sb-logo-name em{color:var(--accent);font-style:normal;}
+.sb-logo-v{font-family:var(--mono);font-size:9px;color:var(--muted2);display:block;margin-top:1px;font-weight:400;}
+
+.sb-section{padding:18px 14px 8px;}
+.sb-section-lbl{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;padding:0 8px;margin-bottom:6px;}
+.nav-item{
+  display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;
+  cursor:pointer;transition:all .17s;color:var(--muted2);font-size:14px;font-weight:600;
+  margin-bottom:2px;border:1px solid transparent;
+}
+.nav-item:hover{background:var(--s2);color:var(--text);}
+.nav-item.active{background:var(--s3);color:var(--text);border-color:var(--border2);}
+.nav-item .ni{font-size:16px;width:20px;text-align:center;}
+.nav-badge{margin-left:auto;font-family:var(--mono);font-size:9px;background:rgba(124,110,242,.2);
+  color:var(--accent);padding:2px 7px;border-radius:99px;font-weight:400;}
+.nav-badge.g{background:rgba(0,229,176,.15);color:var(--acc2);}
+
+.sb-bottom{margin-top:auto;padding:16px 14px;border-top:1px solid var(--border);}
+.sb-stat{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;margin-bottom:6px;}
+.sb-stat span:first-child{color:var(--muted);}
+.sb-stat span:last-child{color:var(--acc2);}
+
+/* ── MAIN ── */
+.main{margin-left:230px;flex:1;display:flex;flex-direction:column;min-height:100vh;}
+
+/* ── TOPBAR ── */
+.topbar{
+  position:sticky;top:0;z-index:50;background:rgba(6,7,16,.85);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);padding:12px 28px;
+  display:flex;align-items:center;gap:14px;
+}
+.search-box{
+  flex:1;max-width:480px;display:flex;align-items:center;gap:10px;
+  background:var(--s2);border:1px solid var(--border2);border-radius:9px;
+  padding:9px 14px;transition:border .2s;
+}
+.search-box:focus-within{border-color:var(--accent);}
+.search-box input{background:none;border:none;outline:none;font-family:var(--mono);
+  font-size:12px;color:var(--text);flex:1;}
+.search-box input::placeholder{color:var(--muted);}
+.search-icon{color:var(--muted);font-size:14px;}
+.topbar-right{display:flex;align-items:center;gap:10px;margin-left:auto;}
+.tb-chip{font-family:var(--mono);font-size:10px;padding:5px 12px;border-radius:99px;
+  border:1px solid;cursor:pointer;transition:all .15s;}
+.tb-chip.g{color:var(--acc2);border-color:rgba(0,229,176,.3);background:rgba(0,229,176,.07);}
+.tb-chip.p{color:var(--accent);border-color:rgba(124,110,242,.3);background:rgba(124,110,242,.07);}
+.tb-btn{padding:8px 16px;background:var(--accent);color:#fff;border:none;border-radius:8px;
+  font-family:var(--sans);font-size:13px;font-weight:700;cursor:pointer;transition:all .17s;}
+.tb-btn:hover{background:#9585f5;transform:translateY(-1px);}
+
+/* ── PAGE ── */
+.page{padding:32px 28px;display:none;animation:fadeIn .35s ease;}
+.page.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+
+/* ── HERO (Home) ── */
+.hero-section{
+  background:linear-gradient(135deg,var(--s2),var(--s3));
+  border:1px solid var(--border);border-radius:20px;
+  padding:52px 48px;margin-bottom:28px;position:relative;overflow:hidden;
+}
+.hero-section::before{
+  content:'';position:absolute;top:-60px;right:-60px;
+  width:300px;height:300px;border-radius:50%;
+  background:radial-gradient(circle,rgba(124,110,242,.2),transparent 70%);
+}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--mono);font-size:10px;color:var(--acc2);
+  border:1px solid rgba(0,229,176,.25);background:rgba(0,229,176,.06);
+  padding:5px 14px;border-radius:99px;margin-bottom:20px;letter-spacing:1px;
+}
+.pulse{width:6px;height:6px;border-radius:50%;background:var(--acc2);animation:pulse 1.5s ease infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.2;}}
+.hero-section h1{font-size:clamp(32px,5vw,56px);font-weight:900;line-height:.95;letter-spacing:-2px;margin-bottom:14px;}
+.gp{background:linear-gradient(135deg,#fff,rgba(255,255,255,.4));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.ga{background:linear-gradient(135deg,var(--accent),var(--acc3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-section p{font-size:15px;color:var(--muted2);max-width:480px;line-height:1.7;margin-bottom:24px;font-weight:400;}
+.hero-btns{display:flex;gap:10px;flex-wrap:wrap;}
+.hbtn{padding:12px 22px;border-radius:10px;font-family:var(--sans);font-size:14px;font-weight:700;cursor:pointer;transition:all .17s;border:none;}
+.hbtn.primary{background:linear-gradient(135deg,var(--accent),var(--acc3));color:#fff;}
+.hbtn.primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(124,110,242,.4);}
+.hbtn.ghost{background:var(--s1);color:var(--text);border:1px solid var(--border2);}
+.hbtn.ghost:hover{border-color:var(--accent);color:var(--accent);}
+
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;}
+.stat-box{background:var(--s1);border:1px solid var(--border);border-radius:var(--rad);padding:18px 20px;}
+.stat-n{font-family:var(--mono);font-size:26px;font-weight:700;margin-bottom:4px;}
+.stat-n.a{color:var(--accent);}.stat-n.g{color:var(--acc2);}.stat-n.o{color:var(--acc4);}
+.stat-l{font-size:12px;color:var(--muted2);}
+
+/* ── SECTION HEADER ── */
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.sec-title{font-size:18px;font-weight:800;letter-spacing:-.5px;}
+.sec-title span{color:var(--accent);}
+.sec-link{font-family:var(--mono);font-size:11px;color:var(--muted2);cursor:pointer;transition:color .15s;background:none;border:none;}
+.sec-link:hover{color:var(--accent);}
+
+/* ── SCRIPT CARDS ── */
+.scripts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:32px;}
+.script-card{
+  background:var(--s1);border:1px solid var(--border);border-radius:var(--rad);
+  overflow:hidden;cursor:pointer;transition:all .2s;
+}
+.script-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3);}
+.sc-banner{height:5px;background:linear-gradient(90deg,var(--accent),var(--acc3));}
+.sc-banner.g{background:linear-gradient(90deg,var(--acc2),var(--acc5));}
+.sc-banner.o{background:linear-gradient(90deg,var(--acc4),var(--acc3));}
+.sc-body{padding:16px;}
+.sc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;}
+.sc-game{font-family:var(--mono);font-size:9px;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
+.sc-game.g{color:var(--acc2);}
+.sc-name{font-size:14px;font-weight:800;letter-spacing:-.3px;}
+.sc-badge{font-family:var(--mono);font-size:9px;padding:3px 8px;border-radius:99px;font-weight:700;flex-shrink:0;}
+.sc-badge.free{background:rgba(0,229,176,.12);color:var(--acc2);border:1px solid rgba(0,229,176,.25);}
+.sc-badge.paid{background:rgba(255,167,51,.12);color:var(--acc4);border:1px solid rgba(255,167,51,.25);}
+.sc-desc{font-size:12px;color:var(--muted2);line-height:1.55;margin-bottom:12px;}
+.sc-code{
+  background:var(--s2);border:1px solid var(--border);border-radius:7px;
+  font-family:var(--mono);font-size:11px;color:var(--acc2);
+  padding:8px 12px;margin-bottom:12px;
+  overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
+}
+.sc-footer{display:flex;align-items:center;justify-content:space-between;}
+.sc-meta{display:flex;align-items:center;gap:12px;}
+.sc-m{font-family:var(--mono);font-size:10px;color:var(--muted2);}
+.sc-m b{color:var(--text);}
+.sc-actions{display:flex;gap:6px;}
+.sc-btn{padding:5px 12px;border-radius:6px;font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer;border:none;transition:all .15s;}
+.sc-btn.copy{background:rgba(124,110,242,.15);color:var(--accent);}
+.sc-btn.copy:hover{background:rgba(124,110,242,.3);}
+.sc-btn.obf{background:rgba(255,77,143,.12);color:var(--acc3);}
+.sc-btn.obf:hover{background:rgba(255,77,143,.25);}
+
+/* ── REPO CARDS ── */
+.repos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-bottom:32px;}
+.repo-card{
+  background:var(--s1);border:1px solid var(--border);border-radius:var(--rad);
+  padding:18px;cursor:pointer;transition:all .2s;
+}
+.repo-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3);}
+.rc-top{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.rc-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.rc-icon.lua{background:rgba(0,207,255,.12);}
+.rc-icon.js{background:rgba(255,167,51,.12);}
+.rc-icon.py{background:rgba(0,229,176,.12);}
+.rc-icon.css{background:rgba(255,77,143,.12);}
+.rc-info{}
+.rc-name{font-size:14px;font-weight:800;letter-spacing:-.3px;margin-bottom:2px;}
+.rc-author{font-family:var(--mono);font-size:10px;color:var(--muted2);}
+.rc-desc{font-size:12px;color:var(--muted2);line-height:1.55;margin-bottom:12px;}
+.rc-footer{display:flex;align-items:center;justify-content:space-between;}
+.rc-tags{display:flex;gap:5px;flex-wrap:wrap;}
+.rc-tag{font-family:var(--mono);font-size:9px;padding:3px 8px;border-radius:4px;background:var(--s3);color:var(--muted2);border:1px solid var(--border);}
+.rc-stats{display:flex;gap:10px;}
+.rc-stat{font-family:var(--mono);font-size:10px;color:var(--muted2);}
+.rc-stat b{color:var(--text);}
+
+/* ── UPLOAD MODAL / FORM ── */
+.modal-overlay{
+  position:fixed;inset:0;z-index:500;background:rgba(6,7,16,.85);backdrop-filter:blur(8px);
+  display:none;align-items:center;justify-content:center;padding:20px;
+}
+.modal-overlay.open{display:flex;}
+.modal{
+  background:var(--s1);border:1px solid var(--border2);border-radius:20px;
+  width:100%;max-width:580px;max-height:90vh;overflow-y:auto;
+}
+.modal-hdr{
+  padding:22px 24px 18px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.modal-title{font-size:18px;font-weight:800;letter-spacing:-.5px;}
+.modal-close{background:none;border:none;color:var(--muted2);font-size:20px;cursor:pointer;line-height:1;padding:4px;}
+.modal-close:hover{color:var(--text);}
+.modal-body{padding:22px 24px;}
+.form-group{margin-bottom:16px;}
+.form-label{font-family:var(--mono);font-size:10px;color:var(--muted2);letter-spacing:1px;text-transform:uppercase;margin-bottom:7px;display:block;}
+.form-input,.form-select,.form-textarea{
+  width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:9px;
+  padding:10px 14px;font-family:var(--mono);font-size:12px;color:var(--text);
+  outline:none;transition:border .2s;
+}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--accent);}
+.form-select option{background:var(--s2);}
+.form-textarea{resize:vertical;min-height:120px;font-family:var(--mono);}
+.form-code{
+  width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:9px;
+  padding:12px 14px;font-family:var(--mono);font-size:11px;color:var(--acc2);
+  outline:none;transition:border .2s;resize:vertical;min-height:140px;
+}
+.form-code:focus{border-color:var(--acc2);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;}
+
+/* ── OBFUSCATOR PAGE ── */
+.obf-layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.obf-panel{background:var(--s1);border:1px solid var(--border);border-radius:var(--rad);overflow:hidden;}
+.obf-panelhdr{
+  padding:11px 16px;border-bottom:1px solid var(--border);background:var(--s2);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.obf-paneltitle{font-family:var(--mono);font-size:11px;color:var(--muted2);}
+.obf-pill{
+  font-family:var(--mono);font-size:9px;padding:3px 9px;border-radius:99px;
+  border:1px solid var(--border2);color:var(--muted2);display:inline-flex;align-items:center;gap:4px;
+  transition:all .25s;
+}
+.obf-pill.ok{color:var(--acc2);border-color:rgba(0,229,176,.35);}
+.obf-pill .pd{width:5px;height:5px;border-radius:50%;background:currentColor;}
+.obf-ta{
+  width:100%;height:260px;background:transparent;border:none;outline:none;resize:none;
+  font-family:var(--mono);font-size:11.5px;line-height:1.75;padding:12px 14px;
+  color:var(--text);caret-color:var(--accent);
+}
+.obf-ta::placeholder{color:var(--muted);}
+.obf-ta.out{color:var(--accent);}
+.deobf-ta.out{color:var(--acc2);}
+
+.opts-wrap{background:var(--s1);border:1px solid var(--border);border-radius:var(--rad);padding:18px 20px;margin:14px 0;}
+.opts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;}
+.opt-row{display:flex;align-items:flex-start;gap:9px;padding:11px 13px;border:1px solid var(--border);border-radius:9px;cursor:pointer;transition:all .17s;background:var(--s2);}
+.opt-row:hover{border-color:rgba(124,110,242,.4);}
+.opt-row input{width:14px;height:14px;accent-color:var(--accent);cursor:pointer;margin-top:2px;flex-shrink:0;}
+.opt-row-body .on{font-size:13px;font-weight:700;margin-bottom:2px;}
+.opt-row-body .od{font-size:10px;color:var(--muted2);line-height:1.45;}
+
+.lvl-row{display:flex;align-items:center;gap:12px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);}
+.lvl-lbl{font-family:var(--mono);font-size:9px;color:var(--muted);white-space:nowrap;letter-spacing:1px;}
+.lbar{flex:1;height:4px;background:var(--s3);border-radius:99px;overflow:hidden;}
+.lbar-f{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--acc2),var(--accent),var(--acc3));transition:width .4s;}
+.lvl-v{font-family:var(--mono);font-size:10px;color:var(--accent);min-width:80px;text-align:right;}
+
+.obf-actions{display:flex;gap:9px;margin-bottom:14px;flex-wrap:wrap;}
+
+/* ── TABS inside obfuscator ── */
+.subtabs{display:flex;gap:4px;background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:4px;margin-bottom:14px;}
+.subtab{flex:1;padding:9px 14px;border:none;border-radius:7px;font-family:var(--sans);font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;color:var(--muted2);background:transparent;}
+.subtab.on{color:#fff;}
+.subtab[data-s="obf"].on{background:linear-gradient(135deg,var(--accent),#8b5cf6);}
+.subtab[data-s="deobf"].on{background:linear-gradient(135deg,var(--acc2),var(--acc5));color:var(--bg);}
+
+/* ── DEOBF INFO ── */
+.deobf-info{background:var(--s1);border:1px solid rgba(0,229,176,.18);border-radius:var(--rad);padding:16px 18px;margin-bottom:14px;}
+.di-title{font-family:var(--mono);font-size:9px;color:var(--acc2);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;}
+.di-list{list-style:none;display:flex;flex-direction:column;gap:7px;}
+.di-list li{display:flex;align-items:flex-start;gap:9px;font-size:12px;color:var(--muted2);}
+.di-list li b{font-family:var(--mono);font-size:9px;color:var(--acc2);background:rgba(0,229,176,.1);border:1px solid rgba(0,229,176,.2);padding:2px 7px;border-radius:4px;flex-shrink:0;font-weight:400;}
+
+/* ── STATS ── */
+.stats-mini{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
+.sm{background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:13px 15px;transition:all .2s;}
+.sm.lit{border-color:rgba(124,110,242,.35);box-shadow:0 0 16px rgba(124,110,242,.08);}
+.sm.glit{border-color:rgba(0,229,176,.35);box-shadow:0 0 16px rgba(0,229,176,.08);}
+.sm-l{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+.sm-v{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--text);}
+.sm-v.a{color:var(--accent);}.sm-v.g{color:var(--acc2);}.sm-v.o{color:var(--acc4);}
+
+/* ── HISTORY ── */
+.hist-list{display:flex;flex-direction:column;gap:7px;margin-top:10px;}
+.hist-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--s2);}
+.hbadge{font-family:var(--mono);font-size:9px;padding:3px 7px;border-radius:4px;font-weight:700;flex-shrink:0;}
+.hbadge.o{background:rgba(124,110,242,.15);color:var(--accent);}
+.hbadge.d{background:rgba(0,229,176,.12);color:var(--acc2);}
+.hprev{flex:1;font-family:var(--mono);font-size:10px;color:var(--muted2);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+.hsz{font-family:var(--mono);font-size:9px;color:var(--muted);}
+.hrst{font-size:11px;font-weight:700;color:var(--muted);padding:4px 9px;border:1px solid var(--border);border-radius:6px;background:none;cursor:pointer;transition:all .15s;font-family:var(--sans);}
+.hrst:hover{color:var(--text);border-color:var(--border2);}
+.hempty{font-family:var(--mono);font-size:11px;color:var(--muted);text-align:center;padding:14px;}
+
+/* ── FEATURED / TRENDING ── */
+.trending-row{display:flex;gap:12px;overflow-x:auto;padding-bottom:6px;margin-bottom:28px;scrollbar-width:none;}
+.trending-row::-webkit-scrollbar{display:none;}
+.trend-card{
+  flex-shrink:0;width:200px;background:var(--s1);border:1px solid var(--border);
+  border-radius:var(--rad);padding:14px;cursor:pointer;transition:all .2s;
+}
+.trend-card:hover{border-color:var(--border2);transform:translateY(-2px);}
+.trend-rank{font-family:var(--mono);font-size:24px;font-weight:700;color:var(--s3);line-height:1;margin-bottom:8px;}
+.trend-game{font-family:var(--mono);font-size:9px;color:var(--accent);letter-spacing:1px;margin-bottom:4px;}
+.trend-name{font-size:13px;font-weight:800;margin-bottom:6px;letter-spacing:-.3px;}
+.trend-views{font-family:var(--mono);font-size:10px;color:var(--muted2);}
+
+/* ── SEARCH PAGE ── */
+.filter-bar{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+.filter-btn{padding:7px 14px;border-radius:8px;font-family:var(--sans);font-size:12px;font-weight:700;
+  cursor:pointer;border:1px solid var(--border);background:var(--s1);color:var(--muted2);transition:all .15s;}
+.filter-btn.on{background:var(--accent);color:#fff;border-color:var(--accent);}
+.filter-btn:hover:not(.on){border-color:var(--border2);color:var(--text);}
+
+/* ── GENERAL BUTTONS ── */
+.btn{padding:10px 18px;border-radius:9px;font-family:var(--sans);font-size:13px;font-weight:700;cursor:pointer;border:none;transition:all .17s;}
+.btn.primary{background:linear-gradient(135deg,var(--accent),var(--acc3));color:#fff;}
+.btn.primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(124,110,242,.4);}
+.btn.secondary{background:var(--s2);color:var(--text);border:1px solid var(--border2);}
+.btn.secondary:hover{border-color:var(--accent);color:var(--accent);}
+.btn.green{background:linear-gradient(135deg,var(--acc2),var(--acc5));color:var(--bg);}
+.btn.green:hover{transform:translateY(-1px);}
+.btn.sm{padding:7px 14px;font-size:12px;}
+.btn.danger{background:rgba(255,77,143,.15);color:var(--acc3);border:1px solid rgba(255,77,143,.25);}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--s2);
+  border:1px solid var(--border2);border-radius:10px;padding:11px 18px;
+  font-family:var(--mono);font-size:12px;color:var(--text);
+  transform:translateY(80px);opacity:0;transition:all .27s;pointer-events:none;min-width:200px;}
+.toast.show{transform:none;opacity:1;}
+.toast.ok{border-color:rgba(0,229,176,.4);color:var(--acc2);}
+.toast.err{border-color:rgba(255,77,143,.4);color:var(--acc3);}
+
+/* Script detail view */
+.code-viewer{background:var(--s2);border:1px solid var(--border);border-radius:var(--rad);padding:16px;margin:14px 0;font-family:var(--mono);font-size:12px;color:var(--acc2);line-height:1.7;white-space:pre-wrap;word-break:break-all;max-height:300px;overflow-y:auto;}
+
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.open{transform:none;}
+  .main{margin-left:0;}
+  .obf-layout{grid-template-columns:1fr;}
+  .stats-row,.stats-mini{grid-template-columns:1fr 1fr;}
+  .scripts-grid,.repos-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<div class="bg"><div class="orb"></div><div class="orb"></div><div class="orb"></div></div>
+<div class="dots"></div>
+
+<div class="app">
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar" id="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-icon">☕</div>
+    <div>
+      <div class="sb-logo-name">Teh<em>Obfus</em></div>
+      <span class="sb-logo-v">Script & Code Hub v2.0</span>
+    </div>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-section-lbl">Menu</div>
+    <div class="nav-item active" onclick="goPage('home')"><span class="ni">🏠</span>Home</div>
+    <div class="nav-item" onclick="goPage('scripts')"><span class="ni">📜</span>Script Hub<span class="nav-badge">HOT</span></div>
+    <div class="nav-item" onclick="goPage('repos')"><span class="ni">💻</span>Repository</div>
+    <div class="nav-item" onclick="goPage('obfuscator')"><span class="ni">🔐</span>TehObfus<span class="nav-badge g">NEW</span></div>
+    <div class="nav-item" onclick="goPage('search')"><span class="ni">🔍</span>Explore</div>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-section-lbl">Aksi</div>
+    <div class="nav-item" onclick="openModal('script')"><span class="ni">➕</span>Upload Script</div>
+    <div class="nav-item" onclick="openModal('repo')"><span class="ni">📁</span>New Repository</div>
+  </div>
+
+  <div class="sb-bottom">
+    <div class="sb-stat"><span>Total Script</span><span id="sb-scripts">0</span></div>
+    <div class="sb-stat"><span>Total Repo</span><span id="sb-repos">0</span></div>
+    <div class="sb-stat"><span>Diobfuscate</span><span id="sb-obf">0</span></div>
+  </div>
+</aside>
+
+<!-- ── MAIN ── -->
+<div class="main">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="global-search" placeholder="Cari script, repo, atau kode..." oninput="liveSearch()">
+    </div>
+    <div class="topbar-right">
+      <span class="tb-chip g">● Online</span>
+      <span class="tb-chip p">Client-Side</span>
+      <button class="tb-btn" onclick="openModal('script')">+ Upload Script</button>
+    </div>
+  </div>
+
+  <!-- ══ HOME PAGE ══ -->
+  <div class="page active" id="page-home">
+    <div class="hero-section">
+      <div class="hero-eyebrow"><span class="pulse"></span>Platform All-in-One</div>
+      <h1><span class="gp">Satu Platform</span><br><span class="ga">Segala Kebutuhan</span></h1>
+      <p>Script Hub seperti ScriptBlox, Repository seperti GitHub, dan Obfuscator TehObfus — semua dalam satu tempat.</p>
+      <div class="hero-btns">
+        <button class="hbtn primary" onclick="goPage('scripts')">🎮 Browse Script</button>
+        <button class="hbtn ghost" onclick="goPage('repos')">💻 Lihat Repository</button>
+        <button class="hbtn ghost" onclick="goPage('obfuscator')">🔐 TehObfus</button>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-n a" id="hn-scripts">0</div><div class="stat-l">Total Script</div></div>
+      <div class="stat-box"><div class="stat-n g" id="hn-repos">0</div><div class="stat-l">Repository</div></div>
+      <div class="stat-box"><div class="stat-n o" id="hn-views">0</div><div class="stat-l">Total Views</div></div>
+      <div class="stat-box"><div class="stat-n a" id="hn-obf">0</div><div class="stat-l">Diobfuscate</div></div>
+    </div>
+
+    <div class="sec-hdr">
+      <div class="sec-title">🔥 Trending <span>Script</span></div>
+      <button class="sec-link btn secondary sm" onclick="goPage('scripts')">Lihat semua →</button>
+    </div>
+    <div class="trending-row" id="trending-row"></div>
+
+    <div class="sec-hdr">
+      <div class="sec-title">🆕 Script <span>Terbaru</span></div>
+      <button class="sec-link btn secondary sm" onclick="goPage('scripts')">Lihat semua →</button>
+    </div>
+    <div class="scripts-grid" id="home-scripts"></div>
+
+    <div class="sec-hdr">
+      <div class="sec-title">💻 Repository <span>Populer</span></div>
+      <button class="sec-link btn secondary sm" onclick="goPage('repos')">Lihat semua →</button>
+    </div>
+    <div class="repos-grid" id="home-repos"></div>
+  </div>
+
+  <!-- ══ SCRIPT HUB PAGE ══ -->
+  <div class="page" id="page-scripts">
+    <div class="sec-hdr">
+      <div class="sec-title">📜 Script <span>Hub</span></div>
+      <button class="btn primary sm" onclick="openModal('script')">+ Upload Script</button>
+    </div>
+    <div class="filter-bar" id="script-filters">
+      <button class="filter-btn on" data-f="all" onclick="filterScripts('all',this)">Semua</button>
+      <button class="filter-btn" data-f="Blox Fruits" onclick="filterScripts('Blox Fruits',this)">Blox Fruits</button>
+      <button class="filter-btn" data-f="Pet Simulator" onclick="filterScripts('Pet Simulator',this)">Pet Simulator</button>
+      <button class="filter-btn" data-f="Brookhaven" onclick="filterScripts('Brookhaven',this)">Brookhaven</button>
+      <button class="filter-btn" data-f="Universal" onclick="filterScripts('Universal',this)">Universal</button>
+    </div>
+    <div class="scripts-grid" id="all-scripts"></div>
+  </div>
+
+  <!-- ══ REPOS PAGE ══ -->
+  <div class="page" id="page-repos">
+    <div class="sec-hdr">
+      <div class="sec-title">💻 <span>Repository</span></div>
+      <button class="btn primary sm" onclick="openModal('repo')">+ New Repo</button>
+    </div>
+    <div class="filter-bar" id="repo-filters">
+      <button class="filter-btn on" data-f="all" onclick="filterRepos('all',this)">Semua</button>
+      <button class="filter-btn" data-f="Lua" onclick="filterRepos('Lua',this)">Lua</button>
+      <button class="filter-btn" data-f="JavaScript" onclick="filterRepos('JavaScript',this)">JavaScript</button>
+      <button class="filter-btn" data-f="Python" onclick="filterRepos('Python',this)">Python</button>
+    </div>
+    <div class="repos-grid" id="all-repos"></div>
+  </div>
+
+  <!-- ══ OBFUSCATOR PAGE ══ -->
+  <div class="page" id="page-obfuscator">
+    <div class="sec-hdr">
+      <div class="sec-title">🔐 Teh<span>Obfus</span> Engine</div>
+      <span style="font-family:var(--mono);font-size:11px;color:var(--muted2)">100% Client-Side · No Data Sent</span>
+    </div>
+
+    <div class="subtabs">
+      <button class="subtab on" data-s="obf" onclick="switchSub('obf')">⚡ Obfuscate</button>
+      <button class="subtab" data-s="deobf" onclick="switchSub('deobf')">🔍 Deobfuscate</button>
+    </div>
+
+    <!-- OBFUSCATE -->
+    <div id="sub-obf">
+      <div class="obf-layout">
+        <div class="obf-panel">
+          <div class="obf-panelhdr">
+            <span class="obf-paneltitle">📝 Input — Kode Asli</span>
+            <span class="obf-pill" id="obf-lc-pill">0 baris</span>
+          </div>
+          <textarea class="obf-ta" id="obf-in" spellcheck="false" oninput="obfLC()"
+            placeholder="// Paste kode JavaScript atau Lua di sini
+function greet(name) {
+  const msg = 'Hello, ' + name + '!';
+  console.log(msg);
+  return msg;
+}
+greet('TehObfus');"></textarea>
+        </div>
+        <div class="obf-panel">
+          <div class="obf-panelhdr">
+            <span class="obf-paneltitle">🔐 Output — Terproteksi</span>
+            <span class="obf-pill" id="obf-status"><span class="pd"></span>Standby</span>
+          </div>
+          <textarea class="obf-ta out" id="obf-out" readonly spellcheck="false"
+            placeholder="// Hasil obfuscation muncul di sini..."></textarea>
+        </div>
+      </div>
+
+      <div class="opts-wrap">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;">Teknik Obfuscation</div>
+        <div class="opts-grid">
+          <label class="opt-row"><input type="checkbox" id="o-rename" checked onchange="updateLvl()">
+            <div class="opt-row-body"><div class="on">Rename Variabel</div><div class="od">Ganti nama var & fungsi jadi acak</div></div>
+          </label>
+          <label class="opt-row"><input type="checkbox" id="o-string" checked onchange="updateLvl()">
+            <div class="opt-row-body"><div class="on">Encode String</div><div class="od">Sembunyikan string ke Base64 atob()</div></div>
+          </label>
+          <label class="opt-row"><input type="checkbox" id="o-hex" onchange="updateLvl()">
+            <div class="opt-row-body"><div class="on">Hex Keywords</div><div class="od">Keyword JS → hex escape \x66...</div></div>
+          </label>
+          <label class="opt-row"><input type="checkbox" id="o-dead" onchange="updateLvl()">
+            <div class="opt-row-body"><div class="on">Dead Code</div><div class="od">Sisipkan kode palsu tak tereksekusi</div></div>
+          </label>
+          <label class="opt-row"><input type="checkbox" id="o-self" onchange="updateLvl()">
+            <div class="opt-row-body"><div class="on">Anti-Debug</div><div class="od">Hambat upaya debugging kode</div></div>
+          </label>
+          <label class="opt-row"><input type="checkbox" id="o-compact" checked onchange="updateLvl()">
+            <div class="opt-row-body"><div class="on">Compact Mode</div><div class="od">Semua menjadi satu baris padat</div></div>
+          </label>
+        </div>
+        <div class="lvl-row">
+          <span class="lvl-lbl">LEVEL</span>
+          <div class="lbar"><div class="lbar-f" id="lbar-f" style="width:30%"></div></div>
+          <span class="lvl-v" id="lvl-v">Sedang</span>
+        </div>
+      </div>
+
+      <div class="obf-actions">
+        <button class="btn primary" onclick="runObf()">⚡ Obfuscate Sekarang</button>
+        <button class="btn secondary sm" onclick="cpTxt('obf-out')">Salin Output</button>
+        <button class="btn secondary sm" onclick="dlJS('obf-out','tehobfus_protected.js')">⬇ Download .js</button>
+        <button class="btn secondary sm" onclick="clearObf('obf')">Reset</button>
+      </div>
+
+      <div class="stats-mini">
+        <div class="sm" id="os1"><div class="sm-l">Ukuran asli</div><div class="sm-v" id="o-sz">—</div></div>
+        <div class="sm" id="os2"><div class="sm-l">Ukuran hasil</div><div class="sm-v a" id="o-out-sz">—</div></div>
+        <div class="sm" id="os3"><div class="sm-l">Proteksi</div><div class="sm-v g" id="o-lvl">—</div></div>
+        <div class="sm" id="os4"><div class="sm-l">Perubahan</div><div class="sm-v" id="o-chg">—</div></div>
+      </div>
+    </div>
+
+    <!-- DEOBFUSCATE -->
+    <div id="sub-deobf" style="display:none">
+      <div class="deobf-info">
+        <div class="di-title">// Teknik Decoding yang Didukung</div>
+        <ul class="di-list">
+          <li><b>01</b>Decode eval(atob()) — unpack berlapis hingga 8 lapisan</li>
+          <li><b>02</b>Decode atob() / Base64 — kembalikan string terenkripsi</li>
+          <li><b>03</b>Hex decode \xNN — karakter hex ke teks asli</li>
+          <li><b>04</b>Unicode decode \uNNNN — escape unicode ke teks</li>
+          <li><b>05</b>Strip anti-debug & dead code — bersihkan kode junk</li>
+          <li><b>06</b>Auto-beautify — format ulang dengan indentasi rapi</li>
+        </ul>
+      </div>
+
+      <div class="obf-layout">
+        <div class="obf-panel">
+          <div class="obf-panelhdr">
+            <span class="obf-paneltitle">🔒 Input — Kode Terobfuscate</span>
+            <span class="obf-pill" id="deobf-lc-pill">0 baris</span>
+          </div>
+          <textarea class="obf-ta" id="deobf-in" spellcheck="false" oninput="deobfLC()"
+            placeholder="// Paste kode terobfuscate di sini
+// Contoh:
+// eval(atob('YWxlcnQoJ0hlbGxvIFdvcmxkJyk='))
+// \x66\x75\x6e\x63\x74\x69\x6f\x6e
+// atob('aGVsbG8gd29ybGQ=')"></textarea>
+        </div>
+        <div class="obf-panel">
+          <div class="obf-panelhdr">
+            <span class="obf-paneltitle">✅ Output — Terdecode</span>
+            <span class="obf-pill" id="deobf-status"><span class="pd"></span>Standby</span>
+          </div>
+          <textarea class="obf-ta deobf-ta out" id="deobf-out" readonly spellcheck="false"
+            placeholder="// Hasil deobfuscation muncul di sini..."></textarea>
+        </div>
+      </div>
+
+      <div class="obf-actions">
+        <button class="btn green" onclick="runDeobf()">🔍 Deobfuscate Sekarang</button>
+        <button class="btn secondary sm" onclick="cpTxt('deobf-out')">Salin Output</button>
+        <button class="btn secondary sm" onclick="dlJS('deobf-out','tehobfus_decoded.js')">⬇ Download .js</button>
+        <button class="btn secondary sm" onclick="clearObf('deobf')">Reset</button>
+      </div>
+
+      <div class="stats-mini">
+        <div class="sm" id="ds1"><div class="sm-l">Ukuran input</div><div class="sm-v" id="d-sz">—</div></div>
+        <div class="sm" id="ds2"><div class="sm-l">Ukuran hasil</div><div class="sm-v g" id="d-out-sz">—</div></div>
+        <div class="sm" id="ds3"><div class="sm-l">Teknik terdeteksi</div><div class="sm-v g" id="d-tech">—</div></div>
+        <div class="sm" id="ds4"><div class="sm-l">Status</div><div class="sm-v" id="d-st">—</div></div>
+      </div>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="opts-wrap">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">Riwayat Sesi</div>
+      <div id="obf-hist"><div class="hempty">Belum ada riwayat.</div></div>
+    </div>
+  </div>
+
+  <!-- ══ SEARCH/EXPLORE PAGE ══ -->
+  <div class="page" id="page-search">
+    <div class="sec-hdr">
+      <div class="sec-title">🔍 <span>Explore</span></div>
+    </div>
+    <div style="margin-bottom:16px;">
+      <div class="search-box" style="max-width:100%;margin-bottom:12px;">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="explore-search" placeholder="Ketik untuk mencari script atau repo..." oninput="doExplore()" style="font-size:14px;">
+      </div>
+      <div class="filter-bar">
+        <button class="filter-btn on" data-ef="all" onclick="setExpFilter('all',this)">Semua</button>
+        <button class="filter-btn" data-ef="script" onclick="setExpFilter('script',this)">Script</button>
+        <button class="filter-btn" data-ef="repo" onclick="setExpFilter('repo',this)">Repository</button>
+      </div>
+    </div>
+    <div id="explore-results"></div>
+  </div>
+</div><!-- end main -->
+</div><!-- end app -->
+
+<!-- ── UPLOAD SCRIPT MODAL ── -->
+<div class="modal-overlay" id="modal-script">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title">📜 Upload Script Baru</div>
+      <button class="modal-close" onclick="closeModal('script')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Nama Script</label>
+          <input type="text" class="form-input" id="s-name" placeholder="cth: Auto Farm Blox Fruits">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Game</label>
+          <select class="form-select" id="s-game">
+            <option>Blox Fruits</option>
+            <option>Pet Simulator</option>
+            <option>Brookhaven</option>
+            <option>Universal</option>
+            <option>Da Hood</option>
+            <option>Anime Adventures</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Deskripsi</label>
+        <input type="text" class="form-input" id="s-desc" placeholder="Jelaskan fitur script ini...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Kode Script</label>
+        <textarea class="form-code" id="s-code" placeholder="-- Paste kode Lua/JS kamu di sini
+loadstring(game:HttpGet(''))()"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Author</label>
+          <input type="text" class="form-input" id="s-author" placeholder="Username kamu">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-select" id="s-status">
+            <option value="free">Free</option>
+            <option value="paid">Paid</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn secondary" onclick="closeModal('script')">Batal</button>
+      <button class="btn primary" onclick="submitScript()">Upload Script</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── NEW REPO MODAL ── -->
+<div class="modal-overlay" id="modal-repo">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title">💻 Buat Repository Baru</div>
+      <button class="modal-close" onclick="closeModal('repo')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Nama Repository</label>
+          <input type="text" class="form-input" id="r-name" placeholder="cth: my-roblox-tools">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Bahasa</label>
+          <select class="form-select" id="r-lang">
+            <option>Lua</option>
+            <option>JavaScript</option>
+            <option>Python</option>
+            <option>CSS</option>
+            <option>TypeScript</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Deskripsi</label>
+        <input type="text" class="form-input" id="r-desc" placeholder="Apa isi repository ini?">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Kode / README</label>
+        <textarea class="form-textarea" id="r-code" placeholder="-- Isi kode awal atau README disini..."></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Author</label>
+          <input type="text" class="form-input" id="r-author" placeholder="Username kamu">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tag (pisahkan koma)</label>
+          <input type="text" class="form-input" id="r-tags" placeholder="cth: roblox, lua, script">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn secondary" onclick="closeModal('repo')">Batal</button>
+      <button class="btn primary" onclick="submitRepo()">Buat Repository</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA STORE ──
+let scripts=[], repos=[], obfHist=[], obfRuns=0, expFilter='all';
+
+const LANG_ICON={Lua:'🌙',JavaScript:'⚡',Python:'🐍',CSS:'🎨',TypeScript:'🔷'};
+const LANG_CLS={Lua:'lua',JavaScript:'js',Python:'py',CSS:'css',TypeScript:'js'};
+const BANNER_CLS=['','g','o'];
+
+// ── SEED DATA ──
+function seed(){
+  scripts=[
+    {id:1,name:'Auto Farm V3',game:'Blox Fruits',desc:'Auto farm semua pulau, auto quest, auto level up dengan anti-AFK terintegrasi.',code:'-- TehObfus Hub Script\nloadstring(game:HttpGet("https://example.com/blox.lua"))()',author:'LuaMaster',status:'free',views:8420,copies:3210,date:'2 jam lalu',banner:0},
+    {id:2,name:'God Mode + ESP',game:'Blox Fruits',desc:'God mode, ESP wall, full bright, no clip untuk Blox Fruits terbaru.',code:'-- Script by TehObfus Community\nlocal ESP = loadstring(game:HttpGet("https://example.com/esp.lua"))()',author:'HaxMaster',status:'free',views:5890,copies:1980,date:'5 jam lalu',banner:1},
+    {id:3,name:'Auto Hatch Bot',game:'Pet Simulator',desc:'Auto hatch telur, auto collect coin, auto rebirth saat limit tercapai.',code:'-- Pet Sim Auto Bot\nloadstring(game:HttpGet("https://example.com/petsim.lua"))()',author:'PetKing',status:'free',views:4100,copies:1450,date:'1 hari lalu',banner:2},
+    {id:4,name:'RP Tools Pack',game:'Brookhaven',desc:'Fitur lengkap untuk roleplay: speed hack, fly, spawn item, animasi custom.',code:'-- Brookhaven Tools\nlocal v=loadstring(game:HttpGet("https://example.com/brk.lua"))()',author:'RPQueen',status:'free',views:3200,copies:990,date:'2 hari lalu',banner:0},
+    {id:5,name:'Universal Script Hub',game:'Universal',desc:'GUI hub universal yang berfungsi di hampir semua game Roblox.',code:'-- Universal Hub by TehObfus\nloadstring(game:HttpGet("https://example.com/hub.lua"))()',author:'UnivDev',status:'free',views:9100,copies:4300,date:'3 hari lalu',banner:1},
+    {id:6,name:'Da Hood Aimbot',game:'Da Hood',desc:'Aimbot presisi tinggi, ESP player, speed, jump power untuk Da Hood.',code:'-- Da Hood Tools\nloadstring(game:HttpGet("https://example.com/dahood.lua"))()',author:'AimGod',status:'paid',views:6700,copies:2100,date:'4 hari lalu',banner:2},
+  ];
+  repos=[
+    {id:1,name:'luautils',author:'LuaMaster',lang:'Lua',desc:'Kumpulan utility function Lua untuk game Roblox. Include string helper, table utils, dan math tools.',tags:['roblox','lua','utility'],stars:124,forks:38,date:'1 jam lalu',code:'-- luautils v1.0\nlocal Utils = {}\nfunction Utils.round(n, d)\n  local m = 10^(d or 0)\n  return math.floor(n * m + 0.5) / m\nend\nreturn Utils'},
+    {id:2,name:'roblox-esp',author:'HaxMaster',lang:'Lua',desc:'ESP (Extra Sensory Perception) framework untuk Roblox. Wall-through visibility, name tags, health bars.',tags:['roblox','esp','hack'],stars:89,forks:22,date:'3 jam lalu',code:'-- roblox-esp\nlocal ESP = {}\nfunction ESP:Init()\n  for _, plr in pairs(game.Players:GetPlayers()) do\n    self:CreateTag(plr)\n  end\nend\nreturn ESP'},
+    {id:3,name:'js-obfuscator-mini',author:'TehObfus',lang:'JavaScript',desc:'Minimal JS obfuscator library yang ringan. Rename variabel, encode string, compact mode.',tags:['javascript','obfuscator','security'],stars:203,forks:67,date:'1 hari lalu',code:'function obfuscate(code) {\n  // mini obfuscator\n  return btoa(code);\n}'},
+    {id:4,name:'python-autoclick',author:'PyDev',lang:'Python',desc:'Auto clicker Python menggunakan PyAutoGUI. Configurable speed, pattern, dan area klik.',tags:['python','automation','tool'],stars:55,forks:14,date:'2 hari lalu',code:'import pyautogui\nimport time\nwhile True:\n    pyautogui.click()\n    time.sleep(0.1)'},
+  ];
+  updateSidebarStats();
+  updateHomeStats();
+  renderAll();
+}
+
+// ── RENDER ──
+function renderAll(){
+  renderScripts('home-scripts',scripts.slice(0,4));
+  renderScripts('all-scripts',scripts);
+  renderTrending();
+  renderRepos('home-repos',repos.slice(0,4));
+  renderRepos('all-repos',repos);
+}
+
+function renderScripts(targetId, data){
+  const el=document.getElementById(targetId);
+  if(!el)return;
+  if(!data.length){el.innerHTML='<div class="hempty">Belum ada script. Upload yang pertama!</div>';return;}
+  el.innerHTML=data.map(s=>`
+    <div class="script-card" onclick="viewScript(${s.id})">
+      <div class="sc-banner ${BANNER_CLS[s.banner]}"></div>
+      <div class="sc-body">
+        <div class="sc-top">
+          <div>
+            <div class="sc-game ${s.banner===1?'g':''}">${s.game}</div>
+            <div class="sc-name">${s.name}</div>
+          </div>
+          <span class="sc-badge ${s.status}">${s.status.toUpperCase()}</span>
+        </div>
+        <div class="sc-desc">${s.desc}</div>
+        <div class="sc-code">${s.code.split('\n')[0]}</div>
+        <div class="sc-footer">
+          <div class="sc-meta">
+            <span class="sc-m">👁 <b>${fmtN(s.views)}</b></span>
+            <span class="sc-m">📋 <b>${fmtN(s.copies)}</b></span>
+            <span class="sc-m">🕒 ${s.date}</span>
+          </div>
+          <div class="sc-actions" onclick="event.stopPropagation()">
+            <button class="sc-btn copy" onclick="copyScript(${s.id})">Copy</button>
+            <button class="sc-btn obf" onclick="sendToObf(${s.id})">Obfus</button>
+          </div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function renderTrending(){
+  const el=document.getElementById('trending-row');
+  const top=scripts.slice().sort((a,b)=>b.views-a.views).slice(0,6);
+  el.innerHTML=top.map((s,i)=>`
+    <div class="trend-card" onclick="viewScript(${s.id})">
+      <div class="trend-rank">#${i+1}</div>
+      <div class="trend-game">${s.game}</div>
+      <div class="trend-name">${s.name}</div>
+      <div class="trend-views">👁 ${fmtN(s.views)} views</div>
+    </div>`).join('');
+}
+
+function renderRepos(targetId, data){
+  const el=document.getElementById(targetId);
+  if(!el)return;
+  if(!data.length){el.innerHTML='<div class="hempty">Belum ada repository. Buat yang pertama!</div>';return;}
+  el.innerHTML=data.map(r=>`
+    <div class="repo-card" onclick="viewRepo(${r.id})">
+      <div class="rc-top">
+        <div class="rc-icon ${LANG_CLS[r.lang]||'lua'}">${LANG_ICON[r.lang]||'📄'}</div>
+        <div class="rc-info">
+          <div class="rc-name">${r.name}</div>
+          <div class="rc-author">by ${r.author}</div>
+        </div>
+      </div>
+      <div class="rc-desc">${r.desc}</div>
+      <div class="rc-footer">
+        <div class="rc-tags">${r.tags.slice(0,3).map(t=>`<span class="rc-tag">${t}</span>`).join('')}</div>
+        <div class="rc-stats">
+          <span class="rc-stat">⭐ <b>${r.stars}</b></span>
+          <span class="rc-stat">🍴 <b>${r.forks}</b></span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// ── FILTER ──
+function filterScripts(f, btn){
+  document.querySelectorAll('#script-filters .filter-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  const data=f==='all'?scripts:scripts.filter(s=>s.game===f);
+  renderScripts('all-scripts',data);
+}
+function filterRepos(f, btn){
+  document.querySelectorAll('#repo-filters .filter-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  const data=f==='all'?repos:repos.filter(r=>r.lang===f);
+  renderRepos('all-repos',data);
+}
+
+// ── VIEW DETAIL ──
+function viewScript(id){
+  const s=scripts.find(x=>x.id===id);if(!s)return;
+  s.views++;updateHomeStats();renderTrending();
+  showModal(`
+    <div style="font-family:var(--mono);font-size:9px;color:var(--accent);letter-spacing:1px;margin-bottom:6px">${s.game}</div>
+    <div style="font-size:18px;font-weight:800;margin-bottom:8px">${s.name}</div>
+    <div style="font-size:13px;color:var(--muted2);margin-bottom:14px">${s.desc}</div>
+    <div style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:6px">KODE SCRIPT</div>
+    <div class="code-viewer">${s.code.replace(/</g,'&lt;')}</div>
+    <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+      <button class="btn primary sm" onclick="copyScript(${id})">📋 Copy Script</button>
+      <button class="btn danger sm" onclick="sendToObf(${id})">🔐 Kirim ke TehObfus</button>
+      <button class="btn secondary sm" onclick="closeGenModal()">Tutup</button>
+    </div>
+    <div style="display:flex;gap:16px;margin-top:12px">
+      <span style="font-family:var(--mono);font-size:10px;color:var(--muted2)">👁 ${fmtN(s.views)} views</span>
+      <span style="font-family:var(--mono);font-size:10px;color:var(--muted2)">👤 ${s.author}</span>
+      <span style="font-family:var(--mono);font-size:10px;color:var(--muted2)">🕒 ${s.date}</span>
+    </div>
+  `);
+}
+
+function viewRepo(id){
+  const r=repos.find(x=>x.id===id);if(!r)return;
+  showModal(`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <div class="rc-icon ${LANG_CLS[r.lang]||'lua'}" style="width:40px;height:40px;font-size:20px;display:flex;align-items:center;justify-content:center;border-radius:10px;">${LANG_ICON[r.lang]||'📄'}</div>
+      <div>
+        <div style="font-size:18px;font-weight:800">${r.name}</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted2)">by ${r.author} · ${r.lang}</div>
+      </div>
+    </div>
+    <div style="font-size:13px;color:var(--muted2);margin-bottom:14px">${r.desc}</div>
+    <div style="display:flex;gap:6px;margin-bottom:14px">${r.tags.map(t=>`<span class="rc-tag">${t}</span>`).join('')}</div>
+    <div style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:6px">KODE</div>
+    <div class="code-viewer">${r.code.replace(/</g,'&lt;')}</div>
+    <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+      <button class="btn primary sm" onclick="cpRaw('${id}')">📋 Copy Kode</button>
+      <button class="btn danger sm" onclick="sendRepoToObf(${id})">🔐 Kirim ke TehObfus</button>
+      <button class="btn secondary sm" onclick="closeGenModal()">Tutup</button>
+    </div>
+    <div style="display:flex;gap:16px;margin-top:12px">
+      <span style="font-family:var(--mono);font-size:10px;color:var(--muted2)">⭐ ${r.stars}</span>
+      <span style="font-family:var(--mono);font-size:10px;color:var(--muted2)">🍴 ${r.forks}</span>
+    </div>
+  `);
+}
+
+let genModal=null;
+function showModal(html){
+  let ov=document.getElementById('gen-modal');
+  if(!ov){
+    ov=document.createElement('div');ov.className='modal-overlay';ov.id='gen-modal';
+    ov.innerHTML='<div class="modal"><div class="modal-hdr"><div class="modal-title">Detail</div><button class="modal-close" onclick="closeGenModal()">✕</button></div><div class="modal-body" id="gen-modal-body"></div></div>';
+    document.body.appendChild(ov);
+    ov.addEventListener('click',e=>{ if(e.target===ov)closeGenModal(); });
+  }
+  document.getElementById('gen-modal-body').innerHTML=html;
+  ov.classList.add('open');
+}
+function closeGenModal(){document.getElementById('gen-modal')?.classList.remove('open');}
+
+// ── COPY / SEND TO OBF ──
+function copyScript(id){
+  const s=scripts.find(x=>x.id===id);if(!s)return;
+  s.copies++;
+  navigator.clipboard.writeText(s.code).catch(()=>{});
+  toast('Script disalin! 📋','ok');
+  closeGenModal();
+}
+function cpRaw(id){
+  const r=repos.find(x=>x.id===+id);if(!r)return;
+  navigator.clipboard.writeText(r.code).catch(()=>{});
+  toast('Kode disalin! 📋','ok');
+  closeGenModal();
+}
+function sendToObf(id){
+  const s=scripts.find(x=>x.id===id);if(!s)return;
+  document.getElementById('obf-in').value=s.code;
+  goPage('obfuscator');switchSub('obf');obfLC();
+  toast('Script dikirim ke TehObfus! 🔐','ok');
+  closeGenModal();
+}
+function sendRepoToObf(id){
+  const r=repos.find(x=>x.id===+id);if(!r)return;
+  document.getElementById('obf-in').value=r.code;
+  goPage('obfuscator');switchSub('obf');obfLC();
+  toast('Kode dikirim ke TehObfus! 🔐','ok');
+  closeGenModal();
+}
+
+// ── SUBMIT ──
+function submitScript(){
+  const name=document.getElementById('s-name').value.trim();
+  const code=document.getElementById('s-code').value.trim();
+  if(!name||!code){toast('Nama dan kode harus diisi!','err');return;}
+  const s={
+    id:Date.now(),name,game:document.getElementById('s-game').value,
+    desc:document.getElementById('s-desc').value||'Script tanpa deskripsi.',
+    code,author:document.getElementById('s-author').value||'Anonymous',
+    status:document.getElementById('s-status').value,
+    views:0,copies:0,date:'Baru saja',banner:Math.floor(Math.random()*3)
+  };
+  scripts.unshift(s);
+  closeModal('script');renderAll();updateSidebarStats();updateHomeStats();
+  toast('Script berhasil diupload! 🎉','ok');
+  ['s-name','s-desc','s-code','s-author'].forEach(id=>document.getElementById(id).value='');
+}
+function submitRepo(){
+  const name=document.getElementById('r-name').value.trim();
+  if(!name){toast('Nama repository harus diisi!','err');return;}
+  const r={
+    id:Date.now(),name,lang:document.getElementById('r-lang').value,
+    desc:document.getElementById('r-desc').value||'Repository tanpa deskripsi.',
+    code:document.getElementById('r-code').value||'// Empty repository',
+    author:document.getElementById('r-author').value||'Anonymous',
+    tags:(document.getElementById('r-tags').value||'code').split(',').map(t=>t.trim()).filter(Boolean),
+    stars:0,forks:0,date:'Baru saja'
+  };
+  repos.unshift(r);
+  closeModal('repo');renderAll();updateSidebarStats();updateHomeStats();
+  toast('Repository berhasil dibuat! 🎉','ok');
+  ['r-name','r-desc','r-code','r-author','r-tags'].forEach(id=>document.getElementById(id).value='');
+}
+
+// ── SEARCH ──
+function liveSearch(){
+  const q=document.getElementById('global-search').value.toLowerCase();
+  if(!q){goPage('home');return;}
+  document.getElementById('explore-search').value=q;
+  goPage('search');doExplore();
+}
+function setExpFilter(f,btn){
+  expFilter=f;
+  document.querySelectorAll('[data-ef]').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');doExplore();
+}
+function doExplore(){
+  const q=document.getElementById('explore-search').value.toLowerCase().trim();
+  const el=document.getElementById('explore-results');
+  const ms=expFilter==='repo'?[]:scripts.filter(s=>!q||s.name.toLowerCase().includes(q)||s.game.toLowerCase().includes(q)||s.desc.toLowerCase().includes(q));
+  const mr=expFilter==='script'?[]:repos.filter(r=>!q||r.name.toLowerCase().includes(q)||r.lang.toLowerCase().includes(q)||r.desc.toLowerCase().includes(q));
+  if(!ms.length&&!mr.length){el.innerHTML='<div class="hempty" style="padding:40px">Tidak ada hasil untuk "'+q+'"</div>';return;}
+  let html='';
+  if(ms.length){html+='<div class="sec-hdr" style="margin-bottom:12px"><div class="sec-title">📜 Script <span>('+ms.length+')</span></div></div><div class="scripts-grid" style="margin-bottom:24px">'+ms.map(s=>`
+    <div class="script-card" onclick="viewScript(${s.id})">
+      <div class="sc-banner ${BANNER_CLS[s.banner]}"></div>
+      <div class="sc-body">
+        <div class="sc-top"><div><div class="sc-game">${s.game}</div><div class="sc-name">${s.name}</div></div><span class="sc-badge ${s.status}">${s.status.toUpperCase()}</span></div>
+        <div class="sc-desc">${s.desc}</div>
+        <div class="sc-footer"><div class="sc-meta"><span class="sc-m">👁 <b>${fmtN(s.views)}</b></span><span class="sc-m">👤 ${s.author}</span></div>
+        <div class="sc-actions" onclick="event.stopPropagation()"><button class="sc-btn copy" onclick="copyScript(${s.id})">Copy</button></div></div>
+      </div>
+    </div>`).join('')+'</div>';}
+  if(mr.length){html+='<div class="sec-hdr" style="margin-bottom:12px"><div class="sec-title">💻 Repository <span>('+mr.length+')</span></div></div><div class="repos-grid">'+mr.map(r=>`
+    <div class="repo-card" onclick="viewRepo(${r.id})">
+      <div class="rc-top"><div class="rc-icon ${LANG_CLS[r.lang]||'lua'}">${LANG_ICON[r.lang]||'📄'}</div><div class="rc-info"><div class="rc-name">${r.name}</div><div class="rc-author">by ${r.author}</div></div></div>
+      <div class="rc-desc">${r.desc}</div>
+      <div class="rc-footer"><div class="rc-tags">${r.tags.slice(0,3).map(t=>`<span class="rc-tag">${t}</span>`).join('')}</div><div class="rc-stats"><span class="rc-stat">⭐ <b>${r.stars}</b></span></div></div>
+    </div>`).join('')+'</div>';}
+  el.innerHTML=html;
+}
+
+// ── MODALS ──
+function openModal(type){
+  document.getElementById('modal-'+type).classList.add('open');
+}
+function closeModal(type){
+  document.getElementById('modal-'+type).classList.remove('open');
+}
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');});
+});
+
+// ── NAVIGATION ──
+function goPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>{
+    if(n.textContent.toLowerCase().includes(id.replace('scripts','script hub').split('')[0]))
+      n.classList.add('active');
+  });
+  if(id==='home'){renderAll();updateHomeStats();}
+}
+
+// ── SUB TABS (obfuscator) ──
+function switchSub(s){
+  document.querySelectorAll('.subtab').forEach(b=>b.classList.remove('on'));
+  document.querySelector('[data-s="'+s+'"]').classList.add('on');
+  document.getElementById('sub-obf').style.display=s==='obf'?'':'none';
+  document.getElementById('sub-deobf').style.display=s==='deobf'?'':'none';
+}
+
+// ── STATS ──
+function updateSidebarStats(){
+  document.getElementById('sb-scripts').textContent=scripts.length;
+  document.getElementById('sb-repos').textContent=repos.length;
+  document.getElementById('sb-obf').textContent=obfRuns;
+}
+function updateHomeStats(){
+  document.getElementById('hn-scripts').textContent=scripts.length;
+  document.getElementById('hn-repos').textContent=repos.length;
+  document.getElementById('hn-views').textContent=fmtN(scripts.reduce((a,s)=>a+s.views,0));
+  document.getElementById('hn-obf').textContent=obfRuns;
+}
+
+// ── OBFUSCATOR ENGINE ──
+const JS_KW=new Set(['break','case','catch','continue','default','delete','do','else','finally','for','function','if','in','instanceof','new','return','switch','this','throw','try','typeof','var','let','const','void','while','class','extends','import','export','super','null','true','false','undefined','console','window','document','Math','Array','Object','String','Number']);
+
+function updateLvl(){
+  const n=['o-rename','o-string','o-hex','o-dead','o-self'].filter(id=>document.getElementById(id).checked).length;
+  document.getElementById('lbar-f').style.width=(n/5*100)+'%';
+  document.getElementById('lvl-v').textContent=['Tidak ada','Sangat rendah','Rendah','Sedang','Tinggi','Maksimal'][n];
+}
+function obfLC(){const n=(document.getElementById('obf-in').value||'').split('\n').length;document.getElementById('obf-lc-pill').textContent=n+' baris';}
+function deobfLC(){const n=(document.getElementById('deobf-in').value||'').split('\n').length;document.getElementById('deobf-lc-pill').textContent=n+' baris';}
+
+function rndId(a=6,b=12){
+  const C='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const n=a+Math.floor(Math.random()*(b-a));
+  let s='_'+C[Math.floor(Math.random()*52)];
+  for(let i=1;i<n;i++) s+=C[Math.floor(Math.random()*52)]+(Math.random()>.72?Math.floor(Math.random()*9):'');
+  return s;
+}
+function b64e(s){try{return btoa(unescape(encodeURIComponent(s)));}catch(e){return null;}}
+function b64d(s){try{return decodeURIComponent(escape(atob(s)));}catch(e){return null;}}
+function fsz(b){return b<1024?b+' B':(b/1024).toFixed(1)+' KB';}
+function fmtN(n){return n>=1000?(n/1000).toFixed(1)+'K':n;}
+
+function setPill(id,txt,cls){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.innerHTML='<span class="pd"></span>'+txt;
+  el.className='obf-pill'+(cls?' '+cls:'');
+}
+
+function runObf(){
+  const input=document.getElementById('obf-in').value.trim();
+  if(!input){toast('Masukkan kode terlebih dahulu!','err');return;}
+  const R=document.getElementById('o-rename').checked,S=document.getElementById('o-string').checked,
+        H=document.getElementById('o-hex').checked,D=document.getElementById('o-dead').checked,
+        A=document.getElementById('o-self').checked,C=document.getElementById('o-compact').checked;
+  let r=input;
+  if(R){
+    const map={};
+    r=r.replace(/\b(var|let|const)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/g,(m,kw,name)=>{
+      if(JS_KW.has(name))return m;if(!map[name])map[name]=rndId();return kw+' '+map[name];
+    });
+    r=r.replace(/\bfunction\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/g,(m,name)=>{
+      if(JS_KW.has(name))return m;if(!map[name])map[name]=rndId();return 'function '+map[name]+'(';
+    });
+    for(const[o,rep]of Object.entries(map)){try{r=r.replace(new RegExp('\\b'+o.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\b','g'),rep);}catch(e){}}
+  }
+  if(S){
+    r=r.replace(/(["'])((?:[^"'\\]|\\.)*)(\1)/g,(m,q,str)=>{
+      if(!str||str.length<2)return m;const b=b64e(str);return b?'atob("'+b+'")':m;
+    });
+  }
+  if(H){
+    ['function','return','if','else','for','while','const','let','var','new','this','true','false','null','undefined','typeof'].forEach(kw=>{
+      const hx=Array.from(kw).map(c=>'\\x'+c.charCodeAt(0).toString(16).padStart(2,'0')).join('');
+      try{r=r.replace(new RegExp('\\b'+kw+'\\b','g'),hx);}catch(e){}
+    });
+  }
+  if(D){
+    const junk=['var '+rndId(3,5)+'=(function(){return typeof window!=="undefined"?0:1})();','void('+rndId(3,5)+'=Math.random()*0);','if(false){var '+rndId(3,5)+'="'+rndId(6,10)+'";}'];
+    r=junk[Math.floor(Math.random()*junk.length)]+r;
+  }
+  if(A)r='(function _0x(){try{(function(){}).constructor(atob("ZGVidWdnZXI="))()}catch(e){}setTimeout(_0x,800)})();'+r;
+  if(C&&!H)r=r.replace(/\/\/[^\n]*/g,'').replace(/\/\*[\s\S]*?\*\//g,'').replace(/\s*\n\s*/g,' ').replace(/\s{2,}/g,' ').trim();
+  document.getElementById('obf-out').value=r;
+  const iSz=new Blob([input]).size,oSz=new Blob([r]).size,chg=Math.round(((oSz-iSz)/iSz)*100);
+  const cnt=[R,S,H,D,A].filter(Boolean).length;
+  const lv=['—','Sangat rendah','Rendah','Sedang','Tinggi','Maksimal'];
+  document.getElementById('o-sz').textContent=fsz(iSz);
+  document.getElementById('o-out-sz').textContent=fsz(oSz);
+  document.getElementById('o-lvl').textContent=lv[cnt]||'Maksimal';
+  document.getElementById('o-chg').textContent=(chg>=0?'+':'')+chg+'%';
+  ['os1','os2','os3','os4'].forEach((id,i)=>{const el=document.getElementById(id);el.classList.add('lit');if(i===2)el.classList.add('glit');});
+  setPill('obf-status','Selesai','ok');
+  obfRuns++;updateSidebarStats();updateHomeStats();
+  addObfHist('obf',input,r);
+  toast('Obfuscation berhasil! '+lv[cnt],'ok');
+}
+
+function runDeobf(){
+  const input=document.getElementById('deobf-in').value.trim();
+  if(!input){toast('Masukkan kode terlebih dahulu!','err');return;}
+  let r=input,det=[];
+  for(let i=0;i<8;i++){
+    const prev=r;
+    r=r.replace(/eval\s*\(\s*atob\s*\(\s*["']([A-Za-z0-9+/=]+)["']\s*\)\s*\)/g,(m,b)=>{
+      const d=b64d(b);if(d){if(!det.includes('eval(atob())'))det.push('eval(atob())');return d;}return m;
+    });
+    if(r===prev)break;
+  }
+  r=r.replace(/atob\s*\(\s*["']([A-Za-z0-9+/=]+)["']\s*\)/g,(m,b)=>{
+    const d=b64d(b);if(d){if(!det.includes('atob/Base64'))det.push('atob/Base64');return'"'+d.replace(/\\/g,'\\\\').replace(/"/g,'\\"')+'"';}return m;
+  });
+  if(/\\x[0-9a-fA-F]{2}/.test(r)){det.push('Hex \\xNN');r=r.replace(/\\x([0-9a-fA-F]{2})/g,(m,h)=>String.fromCharCode(parseInt(h,16)));}
+  if(/\\u[0-9a-fA-F]{4}/.test(r)){det.push('Unicode \\uNNNN');r=r.replace(/\\u([0-9a-fA-F]{4})/g,(m,h)=>String.fromCharCode(parseInt(h,16)));}
+  [/\(function _0x\(\)\{try\{[\s\S]*?setTimeout[\s\S]*?\}\}\)\(\);/g,/\(function _sd\(\)\{[\s\S]*?\}\}\)\(\);/g,/void\(_[a-zA-Z0-9]{2,6}=Math\.random\(\)\*0\);/g,/if\(false\)\{var [^;]+;\}/g].forEach(p=>{
+    const b=r;r=r.replace(p,'');if(r!==b&&!det.includes('Anti-debug'))det.push('Anti-debug');
+  });
+  r=r.replace(/;(?!\n)/g,';\n').replace(/\{(?!\n)/g,' {\n').replace(/\}(?!\n)/g,'\n}\n').replace(/\n{3,}/g,'\n\n').trim();
+  r=autoIndent(r);
+  document.getElementById('deobf-out').value=r;
+  const iSz=new Blob([input]).size,oSz=new Blob([r]).size;
+  document.getElementById('d-sz').textContent=fsz(iSz);
+  document.getElementById('d-out-sz').textContent=fsz(oSz);
+  document.getElementById('d-tech').textContent=det.length?det.length+' teknik':'0';
+  document.getElementById('d-st').textContent=det.length?'Berhasil':'Format saja';
+  document.getElementById('d-st').className='sm-v '+(det.length?'g':'o');
+  ['ds1','ds2','ds3','ds4'].forEach(id=>document.getElementById(id).classList.add('lit','glit'));
+  setPill('deobf-status',det.length?'Berhasil':'Selesai','ok');
+  obfRuns++;updateSidebarStats();updateHomeStats();
+  addObfHist('deobf',input,r);
+  toast(det.length?'Terdeteksi: '+det.join(', '):'Kode diformat ulang','ok');
+}
+
+function autoIndent(code){
+  const lines=code.split('\n');let ind=0,out=[];
+  lines.forEach(raw=>{
+    const l=raw.trim();if(!l)return;
+    const cl=(l.match(/}/g)||[]).length,op=(l.match(/\{/g)||[]).length;
+    if(cl>op)ind=Math.max(0,ind-1);
+    out.push('  '.repeat(Math.max(0,ind))+l);
+    if(op>cl)ind++;
+  });
+  return out.join('\n');
+}
+
+function addObfHist(type,input,output){
+  obfHist.unshift({type,preview:input.replace(/\s+/g,' ').slice(0,55),sz:fsz(new Blob([input]).size),input,output});
+  if(obfHist.length>6)obfHist.pop();
+  renderObfHist();
+}
+function renderObfHist(){
+  const el=document.getElementById('obf-hist');
+  if(!obfHist.length){el.innerHTML='<div class="hempty">Belum ada riwayat.</div>';return;}
+  el.innerHTML='<div class="hist-list">'+obfHist.map((h,i)=>`
+    <div class="hist-item">
+      <span class="hbadge ${h.type==='obf'?'o':'d'}">${h.type==='obf'?'OBF':'DEOBF'}</span>
+      <span class="hprev">${h.preview.replace(/</g,'&lt;')}…</span>
+      <span class="hsz">${h.sz}</span>
+      <button class="hrst" onclick="restObfHist(${i})">Pulihkan</button>
+    </div>`).join('')+'</div>';
+}
+function restObfHist(i){
+  const h=obfHist[i];
+  if(h.type==='obf'){document.getElementById('obf-in').value=h.input;document.getElementById('obf-out').value=h.output;switchSub('obf');}
+  else{document.getElementById('deobf-in').value=h.input;document.getElementById('deobf-out').value=h.output;switchSub('deobf');}
+  toast('Riwayat dipulihkan','ok');
+}
+
+function clearObf(t){
+  if(t==='obf'){
+    ['obf-in','obf-out'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('obf-lc-pill').textContent='0 baris';
+    ['o-sz','o-out-sz','o-lvl','o-chg'].forEach(id=>document.getElementById(id).textContent='—');
+    ['os1','os2','os3','os4'].forEach(id=>document.getElementById(id).classList.remove('lit','glit'));
+    setPill('obf-status','Standby','');
+  } else {
+    ['deobf-in','deobf-out'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('deobf-lc-pill').textContent='0 baris';
+    ['d-sz','d-out-sz','d-tech','d-st'].forEach(id=>document.getElementById(id).textContent='—');
+    ['ds1','ds2','ds3','ds4'].forEach(id=>document.getElementById(id).classList.remove('lit','glit'));
+    setPill('deobf-status','Standby','');
+  }
+}
+
+function cpTxt(id){
+  const v=document.getElementById(id).value;
+  if(!v){toast('Tidak ada output untuk disalin','err');return;}
+  navigator.clipboard.writeText(v).then(()=>toast('Disalin! 📋','ok')).catch(()=>{toast('Gagal menyalin','err');});
+}
+function dlJS(id,name){
+  const v=document.getElementById(id).value;
+  if(!v){toast('Tidak ada output','err');return;}
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([v],{type:'text/javascript'}));a.download=name;a.click();
+  toast('Download dimulai...','ok');
+}
+
+// ── TOAST ──
+function toast(msg,t=''){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.className='toast show'+(t?' '+t:'');
+  setTimeout(()=>el.className='toast',2500);
+}
+
+// ── INIT ──
+seed();
+</script>
+</body>
+</html>
